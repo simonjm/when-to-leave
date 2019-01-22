@@ -1,0 +1,21 @@
+{
+  "name": "when-to-leave",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "0.22.0",
+    "express": "4.16.4",
+    "request": "^2.88.0",
+    "request-promise": "4.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "1.18.9"
+  }
+}
