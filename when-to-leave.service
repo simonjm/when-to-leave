@@ -7,6 +7,7 @@ After=network.target
 Type=simple
 User=root
 Environment="PORT=8085"
+Environment="NODE_ENV=production"
 ExecStart=/usr/bin/node "/home/joe/when-to-leave/index.js"
 Restart=always
 RestartSec=30
