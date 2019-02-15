@@ -5,13 +5,32 @@ const cheerio = require('cheerio');
 const port = process.env.PORT || 3000;
 const app = express();
 
-const toWorkUrl = 'https://www.metrotransit.org/nextrip/901/4/46HI';
+const stops = {
+    'Minnehaha': {
+        north: 'https://www.metrotransit.org/nextrip/901/4/50HI'
+    },
+    '46th St': {
+        north: 'https://www.metrotransit.org/nextrip/901/4/46HI'
+    },
+    '38th St': {
+        north: 'https://www.metrotransit.org/nextrip/901/4/38HI'
+    },
+    'Nicollet Mall': {
+        south: 'https://www.metrotransit.org/nextrip/901/1/5SNI'
+    },
+    'Hennepin': {
+        south: 'https://www.metrotransit.org/nextrip/901/1/WAR2'
+    },
+    'Target Field': {
+        south: 'https://www.metrotransit.org/nextrip/901/1/TF12'
+    },
+};
 
 function fetchDeparture(url) {
     const options = {
         url,
         headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
         }
     };
     return request(options)
@@ -42,8 +61,8 @@ function calculateLeaveTime(departure, delay) {
 }
 
 app.get('/to/work', (req, res) => {
-    fetchDeparture(toWorkUrl)
-        .then(departure => res.type('html').status(200).send(`<p>${calculateLeaveTime(departure, 5)}</p>`))
+    fetchDeparture(stops['46th St'].north)
+        .then(departure => res.json({ arrives: calculateLeaveTime(departure, 5) }))
         .catch(err => res.status(500).send(`Failed to fetch departure. ${err.toString()}`));
 });
 
