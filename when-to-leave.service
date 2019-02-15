@@ -1,0 +1,15 @@
+[Unit]
+Description=When To Leave App
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Environment="PORT=8085"
+ExecStart=/usr/bin/node "/home/joe/when-to-leave/index.js"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
