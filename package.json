@@ -17,6 +17,7 @@
     "request-promise": "4.2.2"
   },
   "devDependencies": {
+    "eslint": "5.14.0",
     "nodemon": "1.18.9"
   }
 }
