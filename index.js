@@ -1,6 +1,7 @@
 const express = require('express');
 const request = require('request-promise');
 const cheerio = require('cheerio');
+const _ = require('lodash');
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -40,6 +41,8 @@ function fetchDeparture(url) {
             if (nextDeparture === '') {
                 throw new Error('Could not find departure text');
             }
+
+            // TODO: Handle case where a time is given back
             const match = /^(\d+) Min/.exec(nextDeparture);
             if (match === null) {
                 throw new Error('Regex failed to match string: ' + nextDeparture);
@@ -63,7 +66,27 @@ function calculateLeaveTime(departure, delay) {
 app.get('/to/work', (req, res) => {
     fetchDeparture(stops['46th St'].north)
         .then(departure => res.json({ arrives: calculateLeaveTime(departure, 5) }))
-        .catch(err => res.status(500).send(`Failed to fetch departure. ${err.toString()}`));
+        .catch(err => res.json(500, { error: err.toString()}));
+});
+
+app.get('/all', async (req, res) => {
+    const promises = Object.entries(stops).map(async ([stop, directions]) => {
+        const results = {};
+        results[stop] = {};
+        for (const [dir, url] of Object.entries(directions)) {
+            try {
+                const result = await fetchDeparture(url);
+                results[stop][dir] = { arrives: result };
+            }
+            catch (e) {
+                results[stop][dir] = { error: e.toString() };
+            }
+        }
+        return results;
+    });
+
+    const results = await Promise.all(promises);
+    res.json(_.merge({}, ...results));
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
