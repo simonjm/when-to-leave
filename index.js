@@ -1,7 +1,6 @@
 const express = require('express');
-const request = require('request-promise');
-const cheerio = require('cheerio');
 const _ = require('lodash');
+const mt = require('./mt');
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -27,31 +26,6 @@ const stops = {
     },
 };
 
-function fetchDeparture(url) {
-    const options = {
-        url,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
-        }
-    };
-    return request(options)
-        .then(data => {
-            const $ = cheerio.load(data);
-            const nextDeparture = $('.nextDepartureText .countdown').text();
-            if (nextDeparture === '') {
-                throw new Error('Could not find departure text');
-            }
-
-            // TODO: Handle case where a time is given back
-            const match = /^(\d+) Min/.exec(nextDeparture);
-            if (match === null) {
-                throw new Error('Regex failed to match string: ' + nextDeparture);
-            }
-
-            return parseInt(match[1], 10);
-        });
-}
-
 // TODO: Trains run every 10 min during rush hour. Figure out a way to handle times when trains run slower
 const trainInterval = 10;
 function calculateLeaveTime(departure, delay) {
@@ -63,10 +37,15 @@ function calculateLeaveTime(departure, delay) {
     return trainInterval + leaveIn;
 }
 
-app.get('/to/work', (req, res) => {
-    fetchDeparture(stops['46th St'].north)
-        .then(departure => res.json({ arrives: calculateLeaveTime(departure, 5) }))
-        .catch(err => res.json(500, { error: err.toString()}));
+app.get('/to/work', async (req, res) => {
+    try {
+        const response = await mt.fetchDeparture(stops['46th St'].north);
+        response.arrives = calculateLeaveTime(response.arrives, 5);
+        res.json(response);
+    }
+    catch (err) {
+        res.json(500, { error: err.toString() });
+    }
 });
 
 app.get('/all', async (req, res) => {
@@ -75,8 +54,7 @@ app.get('/all', async (req, res) => {
         results[stop] = {};
         for (const [dir, url] of Object.entries(directions)) {
             try {
-                const result = await fetchDeparture(url);
-                results[stop][dir] = { arrives: result };
+                results[stop][dir] = await mt.fetchDeparture(url);
             }
             catch (e) {
                 results[stop][dir] = { error: e.toString() };
