@@ -1,5 +1,6 @@
 const express = require('express');
 const _ = require('lodash');
+const Table = require('cli-table');
 const mt = require('./mt');
 
 const port = process.env.PORT || 3000;
@@ -37,6 +38,30 @@ function calculateLeaveTime(departure, delay) {
     return trainInterval + leaveIn;
 }
 
+function prettyPrint(results) {
+    const table = new Table({
+        head: ['Stop', 'North', 'South'],
+        colors: false,
+        colAligns: ['left', 'middle', 'middle']
+    });
+
+    const parseObj = (obj) => {
+        if (_.isEmpty(obj)) {
+            return '';
+        }
+        if (obj.estimate) {
+            return obj.raw;
+        }
+        return obj.arrives === 1 ? '1 min' : `${obj.arrives} mins`;
+    };
+
+    for (const result of results) {
+        const [[name, data]] = Object.entries(result);
+        table.push([name, parseObj(data.north), parseObj(data.south)]);
+    }
+    return table.toString();
+}
+
 app.get('/to/work', async (req, res) => {
     try {
         const response = await mt.fetchDeparture(stops['46th St'].north);
@@ -64,7 +89,12 @@ app.get('/all', async (req, res) => {
     });
 
     const results = await Promise.all(promises);
-    res.json(_.merge({}, ...results));
+    if (req.query.pretty) {
+        res.type('text/plain').send(prettyPrint(results));
+    }
+    else {
+        res.json(_.merge({}, ...results));
+    }
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
