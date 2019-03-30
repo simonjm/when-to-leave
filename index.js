@@ -7,11 +7,15 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 const stops = {
+    'Am. Blvd': {
+        north: 'https://www.metrotransit.org/nextrip/901/4/AM34'
+    },
     'Minnehaha': {
         north: 'https://www.metrotransit.org/nextrip/901/4/50HI'
     },
     '46th St': {
-        north: 'https://www.metrotransit.org/nextrip/901/4/46HI'
+        north: 'https://www.metrotransit.org/nextrip/901/4/46HI',
+        south: 'https://www.metrotransit.org/nextrip/901/1/46HI'
     },
     '38th St': {
         north: 'https://www.metrotransit.org/nextrip/901/4/38HI'
