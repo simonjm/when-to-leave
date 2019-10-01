@@ -14,7 +14,7 @@ const stops = {
         north: 'https://www.metrotransit.org/nextrip/901/4/50HI'
     },
     '46th St': {
-        north: 'https://www.metrotransit.org/nextrip/901/4/46HI',
+        north: 'https://www.metrotransit.org/NexTripBadge.aspx?route=901&direction=4&stop=46HI',
         south: 'https://www.metrotransit.org/nextrip/901/1/46HI'
     },
     '38th St': {
