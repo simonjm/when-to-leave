@@ -4,13 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --inspect index.js"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "0.22.0",
     "cli-table": "0.3.1",
     "express": "4.17.1",
     "lodash": "4.17.15",
@@ -19,6 +18,7 @@
     "request-promise": "4.2.5"
   },
   "devDependencies": {
+    "@types/luxon": "1.21.0",
     "eslint": "6.8.0",
     "nodemon": "2.0.2"
   }

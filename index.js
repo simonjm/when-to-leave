@@ -8,39 +8,28 @@ const app = express();
 
 const stops = {
     'Am. Blvd': {
-        north: 'https://www.metrotransit.org/nextrip/901/4/AM34'
+        north: 'https://svc.metrotransit.org/nextripv2/901/4/AM34'
     },
     'Minnehaha': {
-        north: 'https://www.metrotransit.org/nextrip/901/4/50HI'
+        north: 'https://svc.metrotransit.org/nextripv2/901/4/50HI'
     },
     '46th St': {
-        north: 'https://www.metrotransit.org/NexTripBadge.aspx?route=901&direction=4&stop=46HI',
-        south: 'https://www.metrotransit.org/nextrip/901/1/46HI'
+        north: 'https://svc.metrotransit.org/nextripv2/901/4/46HI',
+        south: 'https://svc.metrotransit.org/nextripv2/901/1/46HI'
     },
     '38th St': {
-        north: 'https://www.metrotransit.org/nextrip/901/4/38HI'
+        north: 'https://svc.metrotransit.org/nextripv2/901/4/38HI'
     },
     'Nicollet Mall': {
-        south: 'https://www.metrotransit.org/nextrip/901/1/5SNI'
+        south: 'https://svc.metrotransit.org/nextripv2/901/1/5SNI'
     },
     'Hennepin': {
-        south: 'https://www.metrotransit.org/nextrip/901/1/WAR2'
+        south: 'https://svc.metrotransit.org/nextripv2/901/1/WAR2'
     },
     'Target Field': {
-        south: 'https://www.metrotransit.org/nextrip/901/1/TF12'
+        south: 'https://svc.metrotransit.org/nextripv2/901/1/TF12'
     },
 };
-
-// TODO: Trains run every 10 min during rush hour. Figure out a way to handle times when trains run slower
-const trainInterval = 10;
-function calculateLeaveTime(departure, delay) {
-    const leaveIn = departure - delay;
-    if (leaveIn >= 0) {
-        return leaveIn;
-    }
-
-    return trainInterval + leaveIn;
-}
 
 function prettyPrint(results) {
     const table = new Table({
@@ -58,10 +47,7 @@ function prettyPrint(results) {
         if (_.isEmpty(obj)) {
             return '';
         }
-        if (obj.estimate) {
-            return obj.raw;
-        }
-        return obj.arrives === 1 ? '1 min' : `${obj.arrives} mins`;
+        return obj.arrives;
     };
 
     for (const result of results) {
@@ -73,9 +59,8 @@ function prettyPrint(results) {
 
 app.get('/to/work', async (req, res) => {
     try {
-        const response = await mt.fetchDeparture(stops['46th St'].north);
-        response.arrives = calculateLeaveTime(response.arrives, 5);
-        res.json(response);
+        const result = await mt.whenToLeave(stops['46th St'].north);
+        res.json(result);
     }
     catch (err) {
         res.json(500, { error: err.toString() });
@@ -88,7 +73,7 @@ app.get('/all', async (req, res) => {
         results[stop] = {};
         for (const [dir, url] of Object.entries(directions)) {
             try {
-                results[stop][dir] = await mt.fetchDeparture(url);
+                results[stop][dir] = await mt.getNextDeparture(url);
             }
             catch (e) {
                 results[stop][dir] = { error: e.toString() };
