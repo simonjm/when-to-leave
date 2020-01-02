@@ -48,9 +48,8 @@ async function whenToLeave(url) {
         throw new Error('Could not find next departure time');
     }
 
-    const leaveIn = Math.round(target.diff(arrivalTime).as('minutes'));
     return {
-        leave: `${leaveIn} ${leaveIn === 1 ? 'minute' : 'minutes'}`,
+        leave: Math.round(target.diff(arrivalTime).as('minutes')),
         target: target.toString(),
         departures
     };
