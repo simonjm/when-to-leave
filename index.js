@@ -59,7 +59,8 @@ function prettyPrint(results) {
 
 app.get('/to/work', async (req, res) => {
     try {
-        const result = await mt.whenToLeave(stops['46th St'].north);
+        const delayMin = req.query.delay && parseInt(req.query.delay, 10) || 20;
+        const result = await mt.whenToLeave(stops['46th St'].north, delayMin);
         res.json(result);
     }
     catch (err) {

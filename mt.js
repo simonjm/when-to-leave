@@ -35,11 +35,9 @@ async function getNextDeparture(url) {
     };
 }
 
-const walkingTime = Duration.fromObject({ minutes: 20 });
-
-async function whenToLeave(url) {
+async function whenToLeave(url, delayMin) {
     const departures = await fetchDeparture(url);
-    const arrivalTime = DateTime.local().plus(walkingTime);
+    const arrivalTime = DateTime.local().plus(Duration.fromObject({ minutes: delayMin }));
     const target = departures
         .map(({ DepartureTime }) => DateTime.fromISO(DepartureTime))
         .find(time => arrivalTime < time);
