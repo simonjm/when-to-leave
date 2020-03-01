@@ -1,5 +1,7 @@
-FROM arm32v7/node:lts AS base
-# FROM node:lts AS base
+FROM arm32v7/node:lts-alpine AS base
+# FROM node:lts-alpine AS base
+
+RUN apk update && apk upgrade
 
 RUN mkdir /app
 WORKDIR /app
