@@ -1,7 +1,4 @@
-FROM arm32v7/node:lts-alpine AS base
-# FROM node:lts-alpine AS base
-
-RUN apk update && apk upgrade
+FROM node:18-alpine AS base
 
 RUN mkdir /app
 WORKDIR /app
@@ -21,6 +18,5 @@ COPY *.js ./
 
 ENV NODE_ENV=production
 ENV TZ=America/Chicago
-EXPOSE 3000
 
 CMD node ./index.js
