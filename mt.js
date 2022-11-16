@@ -6,7 +6,9 @@ function fetchDeparture(url) {
     const options = {
         url,
         headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Safari/605.1.15',
+            'Referer': 'https://www.metrotransit.org/',
+            'Origin': 'https://www.metrotransit.org'
         }
     };
     return request(options)
@@ -19,10 +21,10 @@ function fetchDeparture(url) {
                 throw new Error('Could not parse json', data);
             }
 
-            if (_.isEmpty(json.Departures)) {
-                throw new Error('JSON does not contain \'Departures\' array');
+            if (_.isEmpty(json.departures)) {
+                throw new Error('JSON does not contain \'departures\' array');
             }
-            return json.Departures;
+            return json.departures;
         });
 }
 
@@ -30,8 +32,8 @@ async function getNextDeparture(url) {
     const departures = await fetchDeparture(url);
     const nextDeparture = departures[0];
     return {
-        arrives: nextDeparture.DepartureText,
-        estimate: !nextDeparture.Actual
+        arrives: nextDeparture.departure_text,
+        estimate: !nextDeparture.actual
     };
 }
 
@@ -39,7 +41,7 @@ async function whenToLeave(url, delayMin) {
     const departures = await fetchDeparture(url);
     const arrivalTime = DateTime.local().plus(Duration.fromObject({ minutes: delayMin }));
     const target = departures
-        .map(({ DepartureTime }) => DateTime.fromISO(DepartureTime))
+        .map(({ departure_time }) => DateTime.fromSeconds(departure_time))
         .find(time => arrivalTime < time);
 
     if (!target) {
@@ -48,7 +50,7 @@ async function whenToLeave(url, delayMin) {
 
     return {
         leave: Math.round(target.diff(arrivalTime).as('minutes')),
-        target: target.toString(),
+        target: target.toLocaleString(DateTime.DATETIME_SHORT),
         departures
     };
 }

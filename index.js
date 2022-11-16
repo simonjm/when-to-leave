@@ -8,17 +8,17 @@ const app = express();
 
 const stops = {
     'Am. Blvd': {
-        north: 'https://svc.metrotransit.org/nextripv2/901/4/AM34'
+        north: 'https://svc.metrotransit.org/nextripv2/901/0/AM34'
     },
     'Minnehaha': {
-        north: 'https://svc.metrotransit.org/nextripv2/901/4/50HI'
+        north: 'https://svc.metrotransit.org/nextripv2/901/0/50HI'
     },
     '46th St': {
-        north: 'https://svc.metrotransit.org/nextripv2/901/4/46HI',
+        north: 'https://svc.metrotransit.org/nextripv2/901/0/46HI',
         south: 'https://svc.metrotransit.org/nextripv2/901/1/46HI'
     },
     '38th St': {
-        north: 'https://svc.metrotransit.org/nextripv2/901/4/38HI'
+        north: 'https://svc.metrotransit.org/nextripv2/901/0/38HI'
     },
     'Nicollet Mall': {
         south: 'https://svc.metrotransit.org/nextripv2/901/1/5SNI'
@@ -59,7 +59,7 @@ function prettyPrint(results) {
 
 app.get('/to/work', async (req, res) => {
     try {
-        const delayMin = req.query.delay && parseInt(req.query.delay, 10) || 20;
+        const delayMin = req.query.delay && parseInt(req.query.delay, 10) || 25; // walking time to station
         const result = await mt.whenToLeave(stops['46th St'].north, delayMin);
         res.json(result);
     }
